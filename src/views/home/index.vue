@@ -23,36 +23,53 @@
         :title="channel.name"
         v-for="channel in channels"
         :key="channel.id"
-        >
+      >
         <!-- 文章列表组件 -->
         <article-list :channel="channel"></article-list>
         <!-- /文章列表组件 -->
-
-        </van-tab
-      >
+      </van-tab>
 
       <div slot="nav-right" class="placeholder"></div>
-      <div slot="nav-right" class="hamburger-btn">
+      <div
+        slot="nav-right"
+        class="hamburger-btn"
+        @click="isChennelEditShow = true"
+      >
         <i class="toutiao toutiao-gengduo"></i>
       </div>
     </van-tabs>
     <!-- /频道列表 -->
+
+    <!-- 频道编辑弹出层 -->
+    <van-popup
+      v-model="isChennelEditShow"
+      closeable
+      position="bottom"
+      close-icon-position="top-left"
+      :style="{ height: '100%' }"
+    ><channel-edit :active="active" :my-channels="channels"
+    @update-active="onUpdateActive" ></channel-edit>
+    </van-popup>
+    <!-- /频道编辑弹出层 -->
   </div>
 </template>
 
 <script>
 import { getUserChannels } from "@/api/user";
-import ArticleList from './components/article-list'
+import ArticleList from "./components/article-list";
+import ChannelEdit from './components/channel-edit';
 export default {
   name: "HomeIndex",
   components: {
-    ArticleList
+    ArticleList,
+    ChannelEdit
   },
   props: {},
   data() {
     return {
       active: 0,
-      channels: [] //频道列表
+      channels: [], //频道列表
+      isChennelEditShow: false //控制频道弹出层显示状态
     };
   },
   computed: {},
@@ -65,10 +82,16 @@ export default {
     async loadChannels() {
       try {
         const { data } = await getUserChannels();
-        this.channels=data.data.channels;
+        this.channels = data.data.channels;
       } catch (err) {
         this.$toast("获取频道数据失败");
       }
+    },
+    onUpdateActive(index,isChennelEditShow =true){
+      //更新激活的频道项
+      this.active = index
+      //关闭编辑频道弹层
+      this.isChennelEditShow = isChennelEditShow
     }
   }
 };
@@ -92,6 +115,11 @@ export default {
   }
   /deep/ .channel-tabs {
     .van-tabs__wrap {
+      height: 82px;
+      top: 92px;
+      z-index: 1;
+      left: 0;
+      right: 0;
       height: 82px;
     }
     .van-tab {
