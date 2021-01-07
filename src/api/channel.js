@@ -1,10 +1,11 @@
-//频道请求模块
-
+/**
+ * 频道请求模块
+ */
 import request from '@/utils/request'
 
-
-// 获取所有频道列表
-
+/**
+ * 获取所有频道列表
+ */
 export const getAllChannels = () => {
   return request({
     method: 'GET',
@@ -12,9 +13,9 @@ export const getAllChannels = () => {
   })
 }
 
-
-// 获取用户频道
-
+/**
+ * 添加用户频道
+ */
 export const addUserChannel = channel => {
   return request({
     method: 'PATCH',
@@ -22,5 +23,15 @@ export const addUserChannel = channel => {
     data: {
       channels: [channel]
     }
+  })
+}
+
+/**
+ * 删除用户指定频道
+ */
+export const deleteUserChannel = channelId => {
+  return request({
+    method: 'DELETE',
+    url: `/app/v1_0/user/channels/${channelId}`
   })
 }

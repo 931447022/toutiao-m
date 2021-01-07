@@ -1,8 +1,8 @@
-// 用户相关请求模块
-
+/**
+ * 用户相关请求模块
+ */
 import request from '@/utils/request'
 // import store from '@/store'
-
 
 export const login = data => {
   return request({
@@ -12,8 +12,10 @@ export const login = data => {
   })
 }
 
-// 发送验证码
-// 注意每个手机号每分钟1次
+/**
+ * 发送验证码
+ * 注意：每手机号每分钟1次
+ */
 export const sendSms = mobile => {
   return request({
     method: 'GET',
