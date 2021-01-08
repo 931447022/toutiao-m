@@ -3,7 +3,7 @@
   <!-- tips:在 van-search 外层增加 form 标签
     且 action 不为空 ，即可在ios键盘上显示搜索按钮 -->
   <div class="search-container">
-    <form action="/">
+    <form action="/" class="search-form">
       <!-- show-action显示取消按钮 -->
       <van-search
         v-model="searchText"
@@ -16,17 +16,25 @@
       />
     </form>
 
-     <!-- 搜索结果 -->
-    <search-result  v-if="isResultShow"/>
+    <!-- 搜索结果 -->
+    <search-result v-if="isResultShow" :search-text="searchText" />
     <!-- /搜索结果 -->
 
-   <!-- 联想建议 -->
-    <search-suggestion v-else-if="searchText"
-    :search-text="searchText" />
+    <!-- 联想建议 -->
+    <search-suggestion
+      v-else-if="searchText"
+      :search-text="searchText"
+      @search="onSearch"
+    />
     <!-- /联想建议 -->
 
     <!-- 搜索历史记录 -->
-    <search-history  v-else />
+    <search-history
+      v-else
+      :search-histories="searchHistories"
+      @search="onSearch"
+      @clear-search-histories="searchHistories = []"
+    />
     <!-- /搜索历史记录 -->
   </div>
   <!-- /搜索栏 -->
@@ -36,6 +44,7 @@
 import SearchHistory from "./components/search-history";
 import SearchResult from "./components/search-result";
 import SearchSuggestion from "./components/search-suggestion";
+import { setItem,getItem } from "@/utils/storage";
 export default {
   name: "SearchIndex",
   components: {
@@ -46,12 +55,29 @@ export default {
   data() {
     return {
       searchText: "",
-      isResultShow:false //控制搜索结果的展示
+      isResultShow: false, //控制搜索结果的展示
+      searchHistories: getItem('TOUTIAO_SEARCH_HISTORIES') || []  //搜索的历史记录列表
     };
+  },
+  watch: {
+    searchHistories(value) {
+      setItem('TOUTIAO_SEARCH_HISTORIES',value)
+    }
   },
   methods: {
     onSearch(val) {
-      this.isResultShow =true
+      // 更新文本框内容
+      this.searchText = val;
+      // 存储搜索历史记录
+      // 要求：不要有重复历史记录、最新的排在最前面
+      const index = this.searchHistories.indexOf(val);
+      if (index !== -1) {
+        this.searchHistories.splice(index, 1);
+      }
+      this.searchHistories.unshift(val);
+
+      //渲染搜索结果
+      this.isResultShow = true;
     },
     onCancel() {
       this.$router.back();
@@ -62,8 +88,16 @@ export default {
 
 <style scoped lang="less">
 .search-container {
+  padding-top: 108px;
   /deep/ .van-search__action {
     color: #fff;
+  }
+  .search-form {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
   }
 }
 </style>
